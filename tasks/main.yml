@@ -1,0 +1,16 @@
+---
+# tasks file for ansible-inventory-hosts-role
+- name: Remove hostname resolution to 127.0.0.1
+  lineinfile:
+    path: /etc/hosts
+    regexp: '^127.0.0.1\s+{{ ansible_hostname }}'
+    state: absent
+    
+- name: Add IP address of all hosts to all hosts
+  lineinfile:
+    dest: /etc/hosts
+    regexp: '.*{{ item }}$'
+    line: "{{ hostvars[item].ansible_host }} {{item}}"
+    state: present
+  when: hostvars[item].ansible_host is defined
+  with_items: "{{ groups.all }}"
